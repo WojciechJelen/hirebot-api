@@ -8,5 +8,6 @@ dependencies = [
     "fastapi>=0.115.11",
     "firecrawl-py==0.0.16",
     "pydantic-ai>=0.0.37",
+    "python-dotenv>=1.0.1",
     "uvicorn>=0.34.0",
 ]
