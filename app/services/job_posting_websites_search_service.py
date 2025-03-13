@@ -4,6 +4,11 @@ from fastapi import HTTPException
 from app.schemas.websites_search_schemas import (
     SearchJobPostingWebsitesRequest,
     SearchJobPostingWebsitesResponse,
+    JobPostingWebsite,
+)
+from app.agents.search_job_posting_websites import (
+    search_job_posting_websites_agent,
+    SearchJobPostingWebsitesDeps,
 )
 
 # Set up logger
@@ -35,14 +40,28 @@ async def search_job_posting_websites_service(
             logger.error("Empty search query provided")
             raise ValueError("Search query cannot be empty")
 
-        # TODO: Implement the search job posting websites agent
-        # In the future, this will be replaced with:
-        # return await browse_job_postings_agent(request)
+        # Create dependencies for the agent
+        deps = SearchJobPostingWebsitesDeps(
+            domain=request.query, location=request.location
+        )
 
-        # For now, return empty results
+        # Run the agent
+        agent_result = await search_job_posting_websites_agent.run(
+            "Suggest job posting websites for the given domain", deps=deps
+        )
+
+        # Log the result to understand its structure
+        logger.info(f"Agent result type: {type(agent_result)}")
+        logger.info(f"Agent result content: {agent_result.data}")
+
+        # Get websites list directly from the agent result
+        websites_list = agent_result.data
+        logger.info(f"Found {len(websites_list)} websites")
+
+        # Convert to appropriate response format
         response = SearchJobPostingWebsitesResponse(
-            results=[],
-            total_found=0,
+            results=websites_list,
+            total_found=len(websites_list),
         )
 
         logger.info(
